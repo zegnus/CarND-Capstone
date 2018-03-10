@@ -101,7 +101,7 @@ class WaypointUpdater(object):
         return math.sqrt((a.x-b.x)**2 + (a.y-b.y)**2  + (a.z-b.z)**2)
 
     def closest_waypoint(self):
-        """ get index closest waypoint to car
+        """ get index of closest waypoint to car
 
         see https://github.com/udacity/CarND-Path-Planning-Project/blob/59a4ffc9b56f896479a7e498087ab23f6db3f100/src/main.cpp#L41-L62
 
