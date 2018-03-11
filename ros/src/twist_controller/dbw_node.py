@@ -46,17 +46,19 @@ class DBWNode(object):
         max_lat_accel = rospy.get_param('~max_lat_accel', 3.)
         max_steer_angle = rospy.get_param('~max_steer_angle', 8.)
 
-        self.steer_pub = rospy.Publisher('/vehicle/steering_cmd',
-                                         SteeringCmd, queue_size=1)
-        self.throttle_pub = rospy.Publisher('/vehicle/throttle_cmd',
-                                            ThrottleCmd, queue_size=1)
-        self.brake_pub = rospy.Publisher('/vehicle/brake_cmd',
-                                         BrakeCmd, queue_size=1)
+        # TODO: Add other member variables you need below
+        self.dbw_enabled = False
+
+        # Publishers
+        self.steer_pub = rospy.Publisher('/vehicle/steering_cmd', SteeringCmd, queue_size=1)
+        self.throttle_pub = rospy.Publisher('/vehicle/throttle_cmd', ThrottleCmd, queue_size=1)
+        self.brake_pub = rospy.Publisher('/vehicle/brake_cmd', BrakeCmd, queue_size=1)
 
         # TODO: Create `Controller` object
         # self.controller = Controller(<Arguments you wish to provide>)
 
         # TODO: Subscribe to all the topics you need to
+        rospy.Subscriber('/vehicle/dbw_enabled', Bool, self.dbw_enabled_cb)
 
         self.loop()
 
@@ -70,7 +72,7 @@ class DBWNode(object):
             #                                                     <current linear velocity>,
             #                                                     <dbw status>,
             #                                                     <any other argument you need>)
-            # if <dbw is enabled>:
+            # if self.dbw_enabled:
             #   self.publish(throttle, brake, steer)
             rate.sleep()
 
@@ -92,6 +94,8 @@ class DBWNode(object):
         bcmd.pedal_cmd = brake
         self.brake_pub.publish(bcmd)
 
+    def dbw_enabled_cb(self, msg):
+        self.dbw_enabled = msg.data
 
 if __name__ == '__main__':
     DBWNode()
