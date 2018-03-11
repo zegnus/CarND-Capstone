@@ -42,22 +42,17 @@ class WaypointUpdater(object):
         self.current_pose = None
         self.base_waypoints = None
 
+        self.loop()
+
+    def loop(self):
         # TODO: adjust rate
         rate = rospy.Rate(0.5)
-        start_time = 0
-
-        while not start_time:
-            start_time = rospy.Time.now().to_sec()
-
         while not rospy.is_shutdown():
             if self.current_pose is None or self.base_waypoints is None:
                 continue
 
-            elapsed = rospy.Time.now().to_sec() - start_time
             self.publish()
             rate.sleep()
-
-        rospy.spin()
 
     def publish(self):
         """publish Lane message to /final_waypoints topic"""
