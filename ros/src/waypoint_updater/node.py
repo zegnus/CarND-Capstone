@@ -86,8 +86,8 @@ class WaypointUpdater(object):
 
         Args:
             NextWaypointRequest
+                waypoints (Lane): position to match a waypoint to
                 pose (Pose): position to match a waypoint to
-                waypoints (Pose): position to match a waypoint to
 
         Returns:
             NextWaypointResponse
@@ -139,8 +139,9 @@ class WaypointUpdater(object):
             https://github.com/udacity/CarND-Path-Planning-Project/blob/59a4ffc9b56f896479a7e498087ab23f6db3f100/src/main.cpp#L64-L87
 
         Args:
-            pose (Pose): position to match a waypoint to
-            waypoints (Pose): position to match a waypoint to
+            base_waypoints (Lane): position to match a waypoint to
+            current_pose (Pose): position to match a waypoint to
+            
 
         Returns:
             Int: index of the closest waypoint in waypoints
