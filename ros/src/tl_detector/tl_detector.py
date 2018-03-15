@@ -2,14 +2,14 @@
 import rospy
 from std_msgs.msg import Int32
 from geometry_msgs.msg import PoseStamped, Pose
-from styx_msgs.msg import TrafficLightArray, TrafficLight
-from styx_msgs.msg import Lane
+from styx_msgs.msg import TrafficLightArray, TrafficLight, Waypoint, Lane
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 from light_classification.tl_classifier import TLClassifier
 import tf
 import cv2
 import yaml
+import math
 
 from waypoint_updater.srv import *
 
@@ -98,6 +98,7 @@ class TLDetector(object):
             https://en.wikipedia.org/wiki/Closest_pair_of_points_problem
         Args:
             pose (Pose): position to match a waypoint to
+            waypoints (Waypoints[]): waypoints to check against
 
         Returns:
             int: index of the closest waypoint in self.waypoints
@@ -140,8 +141,12 @@ class TLDetector(object):
         # List of positions that correspond to the line to stop in front of for a given intersection
         stop_line_positions = self.config['stop_line_positions']
 
-        if (self.pose and self.waypoints):
-            car_position = self.get_closest_waypoint(self.pose, self.waypoints)
+        if (self.pose and self.waypoints and self.lights):
+            car_position = self.get_closest_waypoint(self.pose, self.waypoints.waypoints)
+            waypoint = self.waypoints.waypoints[car_position]
+
+            light_waypoints = [Waypoint(pose=x.pose) for x in self.lights]
+            light = self.get_closest_waypoint(waypoint.pose, light_waypoints)
 
         #TODO find the closest visible traffic light (if one exists)
 
