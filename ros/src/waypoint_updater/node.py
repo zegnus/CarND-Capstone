@@ -58,7 +58,7 @@ class WaypointUpdater(object):
     def publish(self):
         """publish Lane message to /final_waypoints topic"""
 
-        next_waypoint = self.next_waypoint(self.base_waypoints, self.current_pose)
+        next_waypoint = self.next_waypoint(self.base_waypoints.waypoints, self.current_pose)
         waypoints = self.base_waypoints.waypoints
         # shift waypoint indexes to start on next_waypoint so it's easy to grab LOOKAHEAD_WPS
         waypoints = waypoints[next_waypoint:] + waypoints[:next_waypoint]
@@ -113,7 +113,7 @@ class WaypointUpdater(object):
     def distance_p1_p2(self, a, b):
         return math.sqrt((a.x-b.x)**2 + (a.y-b.y)**2  + (a.z-b.z)**2)
 
-    def closest_waypoint(self, base_waypoints, current_pose):
+    def closest_waypoint(self, waypoints, pose):
         """ get index of closest waypoint to car
 
         see https://github.com/udacity/CarND-Path-Planning-Project/blob/59a4ffc9b56f896479a7e498087ab23f6db3f100/src/main.cpp#L41-L62
@@ -125,38 +125,38 @@ class WaypointUpdater(object):
         closest_len = 100000; # large number
         closest_waypoint = 0;
 
-        for idx, waypoint in enumerate(self.base_waypoints.waypoints):
-            dist = self.distance_p1_p2(self.current_pose.pose.position, waypoint.pose.pose.position)
+        for idx, waypoint in enumerate(waypoints):
+            dist = self.distance_p1_p2(pose.pose.position, waypoint.pose.pose.position)
             if dist < closest_len:
                 closest_len = dist
                 closest_waypoint = idx
 
         return closest_waypoint
 
-    def next_waypoint(self, base_waypoints, current_pose):
+    def next_waypoint(self, waypoints, pose):
         """Identifies the closest path waypoint to the given position
             https://en.wikipedia.org/wiki/Closest_pair_of_points_problem
             https://github.com/udacity/CarND-Path-Planning-Project/blob/59a4ffc9b56f896479a7e498087ab23f6db3f100/src/main.cpp#L64-L87
 
         Args:
-            base_waypoints (Lane): position to match a waypoint to
-            current_pose (Pose): position to match a waypoint to
+            waypoints (Waypoint[]): position to match a waypoint to
+            pose (Pose): position to match a waypoint to
             
 
         Returns:
             Int: index of the closest waypoint in waypoints
         """
 
-        closest_idx = self.closest_waypoint(base_waypoints, current_pose)
-        closest = base_waypoints.waypoints[closest_idx]
-        num_waypoints = len(base_waypoints.waypoints)
+        closest_idx = self.closest_waypoint(waypoints, pose)
+        closest = waypoints[closest_idx]
+        num_waypoints = len(waypoints)
 
-        x = current_pose.pose.position.x
-        y = current_pose.pose.position.y
+        x = pose.pose.position.x
+        y = pose.pose.position.y
 
         # TODO: is this the correct value for theta?
         rotation_to_radian = 6.28 # 1 rotation = 6.28 radians
-        theta = current_pose.pose.orientation.z * rotation_to_radian
+        theta = pose.pose.orientation.z * rotation_to_radian
 
         map_x = closest.pose.pose.position.x
         map_y = closest.pose.pose.position.y
