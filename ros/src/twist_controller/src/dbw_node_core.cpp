@@ -45,7 +45,7 @@ void DBWNode::run()
 
         if(sys_enable_ == true)
         {
-            
+            getPredictedControlValues();
             return;
         }
 
@@ -81,14 +81,23 @@ void DBWNode::cbFromRecvEnable(const std_msgs::Bool::ConstPtr& msg)
     sys_enable_ = msg->data;
 }
 
-void DBWNode::cbFromTwistCmd(const geometry_msgs::Twist::ConstPtr& msg)
+void DBWNode::cbFromTwistCmd(const geometry_msgs::TwistStamped::ConstPtr& msg)
 {
+    twist_cmd_.header = msg->header;
+    twist_cmd_.twist = msg->twist;
 }
 
-void DBWNode::cbFromCurrentVelocity(const geometry_msgs::Twist::ConstPtr& msg)
+void DBWNode::cbFromCurrentVelocity(const geometry_msgs::TwistStamped::ConstPtr& msg)
 {
+    cur_velocity_.header = msg->header;
+    cur_velocity_.twist = msg->twist;
 }
 
-
+void DBWNode::getPredictedControlValues()
+{
+    double vehicle_mass = vehicle_mass_;
+    double vel_cte = cur_velocity_.twist.linear.x - twist_cmd_.twist.linear.x;
+    //pid
+}
 
 }

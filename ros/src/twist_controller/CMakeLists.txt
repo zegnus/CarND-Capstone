@@ -120,6 +120,7 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
+  include ${catkin_INCLUDE_DIRS}
   include 
   include/twist_controller
   ${catkin_INCLUDE_DIRS}
@@ -134,6 +135,11 @@ add_library(dbw_node_core
 add_library(yaw_controller
   include/twist_controller/yaw_controller.h
   src/yaw_controller.cpp
+)
+
+add_library(PIDControl
+  include/twist_controller/PIDControl.h
+  src/PIDControl.cpp
 )
 
 ## Add cmake target dependencies of the library
@@ -157,7 +163,7 @@ add_executable(dbw_node src/dbw_node.cpp)
 add_dependencies(dbw_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(dbw_node dbw_node_core yaw_controller
+target_link_libraries(dbw_node dbw_node_core yaw_controller PIDControl
    ${catkin_LIBRARIES}
 )
 
@@ -209,29 +215,3 @@ target_link_libraries(dbw_node dbw_node_core yaw_controller
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
-
-# add_executable(dbw_node
-#   src/dbw_node.cpp
-# )
-# add_dependencies(dbw_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-# target_link_libraries(dbw_node 
-#   ${catkin_LIBRARIES}
-# )
-
-# add_library(dbw_node_core
-#   include/twist_controller/dbw_node_core.h
-#   src/dbw_node_core.cpp
-# )
-# add_dependencies(dbw_node_core ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-# target_link_libraries(dbw_node_core
-#   ${catkin_LIBRARIES}
-# )
-
-# add_library(yaw_controller
-#   include/twist_controller/yaw_controller.h
-#   src/yaw_controller.cpp
-# )
-# add_dependencies(yaw_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-# target_link_libraries(yaw_controller
-#   ${catkin_LIBRARIES}
-# )

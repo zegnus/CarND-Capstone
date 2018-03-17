@@ -57,14 +57,18 @@ private:
     ros::Subscriber sub_vel_, sub_cur_vel_, sub_enable_;
 
     void initForROS();
-    void cbFromTwistCmd(const geometry_msgs::Twist::ConstPtr& msg);
+    void cbFromTwistCmd(const geometry_msgs::TwistStamped::ConstPtr& msg);
     void cbFromRecvEnable(const std_msgs::Bool::ConstPtr& msg); 
-    void cbFromCurrentVelocity(const geometry_msgs::Twist::ConstPtr& msg);
-
+    void cbFromCurrentVelocity(const geometry_msgs::TwistStamped::ConstPtr& msg);
+    void getPredictedControlValues();
     void publishControlCmd(float throttle, float brake, float steer);
 
     double vehicle_mass_, fuel_capacity_, brake_deadband_, decel_limit_, accel_limit_, wheel_radius_, wheel_base_, steer_ratio_, max_lat_accel_, max_steer_angle_;
     bool sys_enable_;
+    float throttle_, brake_, steer_;
+
+    geometry_msgs::TwistStamped twist_cmd_;
+    geometry_msgs::TwistStamped cur_velocity_;
 
 };
 
