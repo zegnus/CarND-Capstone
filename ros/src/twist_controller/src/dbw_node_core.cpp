@@ -39,8 +39,11 @@ namespace DBWNODE_NS {
         while(ros::ok()) {
             ros::spinOnce();
 
+            ROS_DEBUG("Checking log");
+
             if(sys_enable_ == true){
-                getPredictedControlValues();
+                PredictedControlValues pcv = getPredictedControlValues();
+                publishControlCmd(pcv.throttle(), pcv.brake(), pcv.steer());
                 return;
             }
 
@@ -82,9 +85,14 @@ namespace DBWNODE_NS {
         cur_velocity_.twist = msg->twist;
     }
 
-    void DBWNode::getPredictedControlValues() {
+    PredictedControlValues DBWNode::getPredictedControlValues() {
         double vehicle_mass = vehicle_mass_;
         double vel_cte = cur_velocity_.twist.linear.x - twist_cmd_.twist.linear.x;
         //pid
+
+        float throttle = 12;
+        float brake = 0;
+        float steer = 0;
+        return PredictedControlValues(throttle, brake, steer);
     }
 }

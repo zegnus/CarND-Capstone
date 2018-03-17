@@ -37,6 +37,7 @@
 #include <dbw_mkz_msgs/ThrottleCmd.h>
 #include <dbw_mkz_msgs/SteeringCmd.h>
 #include <dbw_mkz_msgs/BrakeCmd.h>
+#include "predicted_control_values.h"
 
 #define LOOP_RATE (50)
 
@@ -59,7 +60,7 @@ namespace DBWNODE_NS {
             void cbFromTwistCmd(const geometry_msgs::TwistStamped::ConstPtr &msg);
             void cbFromRecvEnable(const std_msgs::Bool::ConstPtr &msg);
             void cbFromCurrentVelocity(const geometry_msgs::TwistStamped::ConstPtr &msg);
-            void getPredictedControlValues();
+            PredictedControlValues getPredictedControlValues();
             void publishControlCmd(const float throttle, const float brake, const float steer);
 
             double vehicle_mass_, fuel_capacity_, brake_deadband_, decel_limit_, accel_limit_, 
