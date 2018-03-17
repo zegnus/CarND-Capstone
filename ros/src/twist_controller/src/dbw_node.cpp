@@ -31,8 +31,7 @@
 #include <ros/ros.h>
 #include "dbw_node_core.h"
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
   // set up ros
   ros::init(argc, argv, "dbw_node");
   DBWNODE_NS::DBWNode dbwnode;
