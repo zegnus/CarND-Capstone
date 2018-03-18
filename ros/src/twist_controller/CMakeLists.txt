@@ -147,9 +147,9 @@ add_library(yaw_controller
   src/yaw_controller.cpp
 )
 
-add_library(PIDControl
-  include/twist_controller/PIDControl.h
-  src/PIDControl.cpp
+add_library(pid_controller
+  include/twist_controller/pid_controller.h
+  src/pid_controller.cpp
 )
 
 ## Add cmake target dependencies of the library
@@ -173,7 +173,7 @@ add_executable(dbw_node src/dbw_node.cpp)
 add_dependencies(dbw_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(dbw_node dbw_node_core predicted_control_values twist_controller yaw_controller PIDControl
+target_link_libraries(dbw_node dbw_node_core predicted_control_values twist_controller yaw_controller pid_controller
    ${catkin_LIBRARIES}
 )
 

@@ -2,6 +2,8 @@
 #define TWIST_CONTROLLER__H
 
 #include "predicted_control_values.h"
+#include "yaw_controller.h"
+#include "pid_controller.h"
 
 namespace DBWNODE_NS {
 
@@ -12,7 +14,8 @@ class Controller {
         ~Controller();
 
     private:
-        // no private members
+        YawController yawController;
+        PIDController pidController;
 };
 }
 
