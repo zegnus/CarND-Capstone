@@ -5,15 +5,15 @@
 
 namespace DBWNODE_NS {
 
-    class Controller {
-        public:
-            Controller();
-            PredictedControlValues control();
-            ~Controller();
+class Controller {
+    public:
+        Controller();
+        PredictedControlValues control();
+        ~Controller();
 
-        private:
-            // no private members
-    };
+    private:
+        // no private members
+};
 }
 
 #endif

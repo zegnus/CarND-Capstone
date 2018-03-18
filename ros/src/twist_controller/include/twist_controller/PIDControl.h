@@ -33,17 +33,17 @@
 
 namespace DBWNODE_NS {
 
-    class PIDControl {
-        public:
-            PIDControl();
-            PIDControl(const double kp, const double ki, const double kd);
-            ~PIDControl();
+class PIDControl {
+    public:
+        PIDControl();
+        PIDControl(const double kp, const double ki, const double kd);
+        ~PIDControl();
 
-        private:
-            double kp_;
-            double ki_;
-            double kd_;
-    };
+    private:
+        double kp_;
+        double ki_;
+        double kd_;
+};
 }
 
 #endif
