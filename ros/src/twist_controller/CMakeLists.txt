@@ -130,8 +130,10 @@ include_directories(
 add_library(dbw_node_core
   include/twist_controller/dbw_node_core.h
   include/twist_controller/predicted_control_values.h
+  include/twist_controller/twist_controller.h
   src/dbw_node_core.cpp
   src/predicted_control_values.cpp
+  src/twist_controller.cpp
 )
 
 add_library(yaw_controller

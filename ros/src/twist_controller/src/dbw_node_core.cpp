@@ -32,6 +32,8 @@ namespace DBWNODE_NS {
         sub_vel_ = nh_.subscribe("/twist_cmd", 2, &DBWNode::cbFromTwistCmd, this);
         sub_enable_ = nh_.subscribe("/vehicle/dbw_enabled", 2, &DBWNode::cbFromRecvEnable, this);
         sub_cur_vel_ = nh_.subscribe("/current_velocity", 2, &DBWNode::cbFromCurrentVelocity, this);
+
+        controller_ = Controller();
     }
 
     void DBWNode::run() {
@@ -42,7 +44,7 @@ namespace DBWNODE_NS {
             ROS_DEBUG("Checking log");
 
             if(sys_enable_ == true){
-                PredictedControlValues pcv = getPredictedControlValues();
+                PredictedControlValues pcv = controller_.control();
                 publishControlCmd(pcv.throttle(), pcv.brake(), pcv.steer());
                 return;
             }
@@ -89,10 +91,6 @@ namespace DBWNODE_NS {
         double vehicle_mass = vehicle_mass_;
         double vel_cte = cur_velocity_.twist.linear.x - twist_cmd_.twist.linear.x;
         //pid
-
-        float throttle = 12;
-        float brake = 0;
-        float steer = 0;
-        return PredictedControlValues(throttle, brake, steer);
+        // TODO: Move code to the Controller class    
     }
 }

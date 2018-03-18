@@ -38,6 +38,7 @@
 #include <dbw_mkz_msgs/SteeringCmd.h>
 #include <dbw_mkz_msgs/BrakeCmd.h>
 #include "predicted_control_values.h"
+#include "twist_controller.h"
 
 #define LOOP_RATE (50)
 
@@ -70,6 +71,8 @@ namespace DBWNODE_NS {
 
             geometry_msgs::TwistStamped twist_cmd_;
             geometry_msgs::TwistStamped cur_velocity_;
+
+            Controller controller_;
     };
 }
 

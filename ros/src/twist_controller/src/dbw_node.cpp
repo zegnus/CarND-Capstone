@@ -33,6 +33,7 @@
 
 int main(int argc, char **argv) {
   // set up ros
+  ROS_DEBUG("start main() dbw_node");
   ros::init(argc, argv, "dbw_node");
   DBWNODE_NS::DBWNode dbwnode;
   dbwnode.run();
