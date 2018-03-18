@@ -129,10 +129,16 @@ include_directories(
 ## Declare a C++ library
 add_library(dbw_node_core
   include/twist_controller/dbw_node_core.h
-  include/twist_controller/predicted_control_values.h
-  include/twist_controller/twist_controller.h
   src/dbw_node_core.cpp
+)
+
+add_library(predicted_control_values
+  include/twist_controller/predicted_control_values.h
   src/predicted_control_values.cpp
+)
+
+add_library(twist_controller
+  include/twist_controller/twist_controller.h
   src/twist_controller.cpp
 )
 
@@ -167,7 +173,7 @@ add_executable(dbw_node src/dbw_node.cpp)
 add_dependencies(dbw_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(dbw_node dbw_node_core yaw_controller PIDControl
+target_link_libraries(dbw_node dbw_node_core predicted_control_values twist_controller yaw_controller PIDControl
    ${catkin_LIBRARIES}
 )
 

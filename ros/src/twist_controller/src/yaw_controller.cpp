@@ -1,6 +1,6 @@
 #include "yaw_controller.h"
 
-namespace DBWNODE_NS{
+namespace DBWNODE_NS {
 
 using namespace std;
 
