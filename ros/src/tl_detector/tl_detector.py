@@ -42,6 +42,7 @@ class TLDetector(object):
 
         config_string = rospy.get_param("/traffic_light_config")
         self.config = yaml.load(config_string)
+        self.max_visible_distance = rospy.get_param('~max_visible_distance')
 
         self.upcoming_red_light_pub = rospy.Publisher('/traffic_waypoint', Int32, queue_size=1)
         self.next_waypoint_proxy = rospy.ServiceProxy('/waypoint_updater/next_waypoint', NextWaypoint)
@@ -164,6 +165,7 @@ class TLDetector(object):
                     light_wp = len(closet_waypoint) - light_wp
 
         if light:
+            rospy.loginfo(light_wp)
             state = self.get_light_state(light)
             return light_wp, state
 
@@ -207,11 +209,17 @@ class TLDetector(object):
         """
 
         transformed = self.transform_point(pose, position)
+        point = transformed.point
 
         # pinhole camera model reverses x, y coordinates
-        x = -transformed.point.y
-        y = -transformed.point.z
-        z = transformed.point.x
+        x = -point.y # point.y = horizontal camera dimension
+        y = -point.z # point.z = vertical camera dimension
+        z = point.x # point.x = z/depth camera dimension
+
+        # todo: does this need to be more elegant?
+        rospy.loginfo('distannce: %s', z)
+        if z > self.max_visible_distance:
+            return False
 
         # create camera info
         camera = PinholeCameraModel()
