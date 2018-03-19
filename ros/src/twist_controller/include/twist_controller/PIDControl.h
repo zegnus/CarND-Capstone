@@ -31,20 +31,32 @@
 #ifndef PID_CONTROL_H
 #define PID_CONTROL_H
 
+#include <limits>
+
 namespace DBWNODE_NS{
 
 class PIDControl
 {
 public:
     PIDControl();
-    PIDControl(double kp, double ki, double kd);
     ~PIDControl();
+
+    void initial(double kp, double ki, double kd);
+    void resetError();
+    double step(double cte, double sample_time);
+    void updateError(double cte, double sample_time);
 
 private:
     /* data */
     double kp_;
     double ki_;
     double kd_;
+
+    double p_error_, i_error_, d_error_;
+    bool is_initialized_;
+
+    double min_num_, max_num_;
+
 };
 
 

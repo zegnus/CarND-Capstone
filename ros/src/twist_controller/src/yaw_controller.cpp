@@ -1,18 +1,8 @@
 #include "yaw_controller.h"
 
-namespace DBWNODE_NS{
+using namespace DBWNODE_NS;
 
 using namespace std;
-
-YawController::YawController(double wheel_base, double steer_ratio, double min_speed, double max_lat_accel, double max_steer_angle)
-{
-    wheel_base_ = wheel_base;
-    steer_ratio_ = steer_ratio;
-    min_speed_ = min_speed;
-    max_lat_accel_ = max_lat_accel;
-    min_angle_ = -max_steer_angle;
-    max_angle_ = max_steer_angle;
-}
 
 YawController::YawController()
 {}
@@ -50,5 +40,24 @@ double YawController::get_steering(double linear_velocity, double angular_veloci
 
 }
 
-
+void YawController::setWheelBase(double wheel_base)
+{
+    wheel_base_ = wheel_base;
 }
+    
+void YawController::setSteeringRatio(double steer_ratio)
+{
+    steer_ratio_ = steer_ratio;
+}
+
+void YawController::setParameters(double wheel_base, double steer_ratio, double max_lat_accel, double max_steer_angle)
+{
+    wheel_base_ = wheel_base;
+    steer_ratio_ = steer_ratio;
+    //TODO
+    //min_speed_ = min_speed;
+    max_lat_accel_ = max_lat_accel;
+    min_angle_ = -max_steer_angle;
+    max_angle_ = max_steer_angle;
+}
+

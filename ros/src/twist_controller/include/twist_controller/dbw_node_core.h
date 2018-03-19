@@ -37,10 +37,27 @@
 #include <dbw_mkz_msgs/ThrottleCmd.h>
 #include <dbw_mkz_msgs/SteeringCmd.h>
 #include <dbw_mkz_msgs/BrakeCmd.h>
+#include "yaw_controller.h"
+#include "PIDControl.h"
 
 #define LOOP_RATE (50)
 
 namespace DBWNODE_NS{
+
+typedef struct Controller
+{
+  double throttle;        // throttle
+  double brake;           // brake
+  double steer;           // steer
+
+  Controller():throttle(0.0), brake(0.0), steer(0.0){ }
+  void reset()
+  {
+      throttle = 0.0;
+      brake = 0.0;
+      steer = 0.0;
+  }
+}Controller;
 
 class DBWNode
 {
@@ -61,17 +78,26 @@ private:
     void cbFromRecvEnable(const std_msgs::Bool::ConstPtr& msg); 
     void cbFromCurrentVelocity(const geometry_msgs::TwistStamped::ConstPtr& msg);
     void getPredictedControlValues();
-    void publishControlCmd(float throttle, float brake, float steer);
+    void publishControlCmd(Controller v_controller);
 
     double vehicle_mass_, fuel_capacity_, brake_deadband_, decel_limit_, accel_limit_, wheel_radius_, wheel_base_, steer_ratio_, max_lat_accel_, max_steer_angle_;
     bool sys_enable_;
+    double control_gap_;
     float throttle_, brake_, steer_;
+
+    PIDControl speed_pid_;  //pid for speed
+    PIDControl accel_pid_;  //pid for acceleration
+
+    YawController yaw_controller_;
+    Controller vehicle_controller_;
 
     geometry_msgs::TwistStamped twist_cmd_;
     geometry_msgs::TwistStamped cur_velocity_;
 
-};
+    static const double GAS_DENSITY = 2.858; // for kg/gal transform
+    static double mphToMps(double mph) { return mph * 0.44704;} //mph to m/s
 
+};
 
 
 }

@@ -40,15 +40,22 @@ class YawController
 {
 public:
     YawController();
-	YawController(double wheel_base, double steer_ratio, double min_speed, double max_lat_accel, double max_steer_angle);
     ~YawController();
 
     double get_angle(double radius);
     double get_steering(double linear_velocity, double angular_velocity, double current_velocity);
 
+    void setWheelBase(double wheel_base);
+    void setSteeringRatio(double steer_ratio);
+    void setParameters(double wheel_base, double steer_ratio, double max_lat_accel, double max_steer_angle);
 private:
 
-    double wheel_base_, steer_ratio_, min_speed_, max_lat_accel_, min_angle_, max_angle_;
+    double wheel_base_;
+    double steer_ratio_;
+    double min_speed_;
+    double max_lat_accel_;
+    double min_angle_;
+    double max_angle_;
 
 };
 
