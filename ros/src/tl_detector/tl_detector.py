@@ -165,7 +165,6 @@ class TLDetector(object):
                     light_wp = len(closet_waypoint) - light_wp
 
         if light:
-            rospy.loginfo(light_wp)
             state = self.get_light_state(light)
             return light_wp, state
 
@@ -217,7 +216,6 @@ class TLDetector(object):
         z = point.x # point.x = z/depth camera dimension
 
         # todo: does this need to be more elegant?
-        rospy.loginfo('distannce: %s', z)
         if z > self.max_visible_distance:
             return False
 
