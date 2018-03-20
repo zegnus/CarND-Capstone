@@ -125,6 +125,14 @@ class TLDetector(object):
             int: ID of traffic light color (specified in styx_msgs/TrafficLight)
 
         """
+
+        """
+        TODO: !!! remove this return statement !!!
+        this only works on the simulator because we are given ground truth data for light state
+        replace when classifier is complete
+        """
+        return light.state
+
         if(not self.has_image):
             self.prev_light_loc = None
             return False
