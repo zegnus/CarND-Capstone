@@ -18,27 +18,36 @@ double YawController::get_angle(double radius)
 
 double YawController::get_steering(double linear_velocity, double angular_velocity, double current_velocity)
 {
-    double angular_vel = 0.0;
-    if(fabs(linear_velocity) > 0.0)
+    double steering_wheel_angle = 0.0;
+    if(fabs(current_velocity) > 0.5)
     {
-        angular_vel = current_velocity * angular_velocity / linear_velocity;
+        steering_wheel_angle = steer_ratio_ * atan(wheel_base_ * angular_velocity / current_velocity);
     }
-	
-	if(fabs(current_velocity) > 0.1)
-	{
-		double max_yaw_rate = fabs(max_lat_accel_ / current_velocity);
-		angular_vel = max(-max_yaw_rate, min(max_yaw_rate, angular_vel));
-	}
-	
-	if(fabs(angular_vel) > 0.0)
-	{
-		return get_angle(max(current_velocity, min_speed_) / angular_vel);
-	}
-	else
-		return 0.0;
+    else
+    {
+        if(fabs(linear_velocity) > 0.1)
+        {
+            steering_wheel_angle = steer_ratio_ * atan(wheel_base_ * angular_velocity / linear_velocity);
+        }
+        else
+        {
+            steering_wheel_angle = 0.0;
+        }
+    }
 
+    if(steering_wheel_angle > max_angle_)
+    {
+        steering_wheel_angle = max_angle_;
+    }
+    else if(steering_wheel_angle < min_angle_)
+    {
+        steering_wheel_angle = min_angle_;
+    }
+
+    return steering_wheel_angle;
 
 }
+
 
 void YawController::setWheelBase(double wheel_base)
 {
@@ -54,8 +63,6 @@ void YawController::setParameters(double wheel_base, double steer_ratio, double 
 {
     wheel_base_ = wheel_base;
     steer_ratio_ = steer_ratio;
-    //TODO
-    //min_speed_ = min_speed;
     max_lat_accel_ = max_lat_accel;
     min_angle_ = -max_steer_angle;
     max_angle_ = max_steer_angle;

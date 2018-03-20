@@ -37,8 +37,13 @@
 #include <dbw_mkz_msgs/ThrottleCmd.h>
 #include <dbw_mkz_msgs/SteeringCmd.h>
 #include <dbw_mkz_msgs/BrakeCmd.h>
+#include <dbw_mkz_msgs/SteeringReport.h>
 #include "yaw_controller.h"
 #include "PIDControl.h"
+#include "lowpassfilter.h"
+
+#include <dynamic_reconfigure/server.h>
+#include <twist_controller/ControllerConfig.h>
 
 #define LOOP_RATE (50)
 
@@ -71,25 +76,35 @@ private:
     ros::NodeHandle private_nh_;
 
     ros::Publisher throttle_pub_, brake_pub_, steer_pub_;
-    ros::Subscriber sub_vel_, sub_cur_vel_, sub_enable_;
+    ros::Subscriber sub_vel_, sub_cur_vel_, sub_enable_, sub_steer_report_;
 
     void initForROS();
     void cbFromTwistCmd(const geometry_msgs::TwistStamped::ConstPtr& msg);
     void cbFromRecvEnable(const std_msgs::Bool::ConstPtr& msg); 
     void cbFromCurrentVelocity(const geometry_msgs::TwistStamped::ConstPtr& msg);
+    void cbFromSteeringReport(const dbw_mkz_msgs::SteeringReport::ConstPtr& msg);
+    //dynamic re-configure
+    void cbFromDynamicReconfig(twist_controller::ControllerConfig& config, uint32_t level);
+
+
     void getPredictedControlValues();
     void publishControlCmd(Controller v_controller);
 
     double vehicle_mass_, fuel_capacity_, brake_deadband_, decel_limit_, accel_limit_, wheel_radius_, wheel_base_, steer_ratio_, max_lat_accel_, max_steer_angle_;
     bool sys_enable_;
     double control_gap_;
-    float throttle_, brake_, steer_;
+    //float throttle_, brake_, steer_;
 
     PIDControl speed_pid_;  //pid for speed
     PIDControl accel_pid_;  //pid for acceleration
 
     YawController yaw_controller_;
     Controller vehicle_controller_;
+
+    LowPassFilter lpf_fuel_;
+    LowPassFilter lpf_accel_;
+    twist_controller::ControllerConfig cfg_;
+    dynamic_reconfigure::Server<twist_controller::ControllerConfig> srv_;
 
     geometry_msgs::TwistStamped twist_cmd_;
     geometry_msgs::TwistStamped cur_velocity_;

@@ -28,38 +28,32 @@
  *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PID_CONTROL_H
-#define PID_CONTROL_H
-
-#include <limits>
+#ifndef LOW_PATH_FILTER_H
+#define LOW_PATH_FILTER_H
 
 namespace DBWNODE_NS{
 
-class PIDControl
+class LowPassFilter
 {
 public:
-    PIDControl();
-    ~PIDControl();
+    LowPassFilter();
+    LowPassFilter(double tau, double ts);
+    ~LowPassFilter();
 
-    void initial(double kp, double ki, double kd);
-    void resetError();
-    double step(double cte, double sample_time);
-    void updateError(double cte, double sample_time);
-    void setRange(double min, double max);
-    void setGains(double kp, double ki, double kd);
+    void setParams(double tau, double ts);
+    double filt(double val);
+    double get();
+    bool getReady();
 
 private:
     /* data */
-    double kp_;
-    double ki_;
-    double kd_;
-
-    double p_error_, i_error_, d_error_;
-    bool is_initialized_;
-
-    double min_num_, max_num_;
-
+    double a_;
+    double b_;
+    bool ready_;
+    double last_val_;
 };
+
+
 
 
 

@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   styx_msgs
+  dynamic_reconfigure
 )
 
 ## System dependencies are found with CMake's conventions
@@ -91,10 +92,9 @@ find_package(catkin REQUIRED COMPONENTS
 ##     and list every .cfg file to be processed
 
 ## Generate dynamic reconfigure parameters in the 'cfg' folder
-# generate_dynamic_reconfigure_options(
-#   cfg/DynReconf1.cfg
-#   cfg/DynReconf2.cfg
-# )
+generate_dynamic_reconfigure_options(
+  cfg/Controller.cfg
+)
 
 ###################################
 ## catkin specific configuration ##
@@ -142,6 +142,11 @@ add_library(PIDControl
   src/PIDControl.cpp
 )
 
+add_library(lowpassfilter
+  include/twist_controller/lowpassfilter.h
+  src/lowpassfilter.cpp
+)
+
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
@@ -163,7 +168,7 @@ add_executable(dbw_node src/dbw_node.cpp)
 add_dependencies(dbw_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(dbw_node dbw_node_core yaw_controller PIDControl
+target_link_libraries(dbw_node dbw_node_core yaw_controller PIDControl lowpassfilter
    ${catkin_LIBRARIES}
 )
 

@@ -48,7 +48,7 @@ double PIDControl::step(double cte, double sample_time)
 {
     this->updateError(cte, sample_time);
 
-    double val = -kp_* p_error_ - kd_ * d_error_ - ki_ * i_error_;
+    double val = kp_* p_error_ + kd_ * d_error_ + ki_ * i_error_;
 
     if(val > max_num_)
     {
@@ -59,6 +59,22 @@ double PIDControl::step(double cte, double sample_time)
 
     return val;
 
+}
+
+void PIDControl::setRange(double min, double max) 
+{ 
+    min_num_ = min; 
+    max_num_ = max; 
+}
+
+//reset PID gains.
+void PIDControl::setGains(double kp, double ki, double kd)
+{
+        kp_ = kp;
+        ki_ = ki;
+        kd_ = kd;
+
+        return;
 }
 
 }
