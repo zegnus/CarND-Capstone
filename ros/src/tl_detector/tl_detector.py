@@ -1,15 +1,9 @@
 #!/usr/bin/env python
 import rospy
 from std_msgs.msg import Int32
-<<<<<<< HEAD
-from geometry_msgs.msg import PoseStamped, Pose
-from styx_msgs.msg import TrafficLightArray, TrafficLight, Waypoint, Lane
-from sensor_msgs.msg import Image
-=======
 from geometry_msgs.msg import PointStamped, PoseStamped, Pose
 from styx_msgs.msg import TrafficLightArray, TrafficLight, Waypoint, Lane
 from sensor_msgs.msg import Image, CameraInfo
->>>>>>> asadziach/master
 from cv_bridge import CvBridge
 from light_classification.tl_classifier import TLClassifier
 from image_geometry import PinholeCameraModel
