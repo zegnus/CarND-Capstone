@@ -170,7 +170,7 @@ void DBWNode::getPredictedControlValues()
     if (accel_cmd < -brake_deadband_) 
     {
         vehicle_controller_.brake = -accel_cmd * vehicle_mass * wheel_base_;
-        ROS_INFO("vehicle_controller_.brake: %f", vehicle_controller_.brake);
+        //ROS_INFO("vehicle_controller_.brake: %f", vehicle_controller_.brake);
     } 
     else 
     {
