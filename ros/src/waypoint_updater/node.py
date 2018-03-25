@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
 import rospy
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseStamped, PointStamped
 from styx_msgs.msg import Lane, Waypoint
 from std_msgs.msg import Int32
+import tf
 
 from waypoint_updater.srv import *
 import math
@@ -36,6 +37,7 @@ class WaypointUpdater(object):
         rospy.Service('~next_waypoint', NextWaypoint, self.next_waypoint_cb)
 
         self.final_waypoints_pub = rospy.Publisher('final_waypoints', Lane, queue_size=1)
+        self.listener = tf.TransformListener()
 
         # TODO: Add other member variables you need below
         self.traffic_waypoint = -1
@@ -148,32 +150,19 @@ class WaypointUpdater(object):
         """
 
         closest_idx = self.closest_waypoint(waypoints, pose)
+
+        # check if passed closest waypoint (let ROS do the math)
         closest = waypoints[closest_idx]
-        num_waypoints = len(waypoints)
+        p_world = PointStamped(header=pose.header, point=closest.pose.pose.position)
+        self.listener.waitForTransform('/base_link', '/world', pose.header.stamp, rospy.Duration(3.0))
+        transformed = self.listener.transformPoint('/base_link', p_world)
 
-        x = pose.pose.position.x
-        y = pose.pose.position.y
-
-        # TODO: is this the correct value for theta?
-        rotation_to_radian = 6.28 # 1 rotation = 6.28 radians
-        theta = pose.pose.orientation.z * rotation_to_radian
-
-        map_x = closest.pose.pose.position.x
-        map_y = closest.pose.pose.position.y
-
-        heading = math.atan2((map_y - y), (map_x - x))
-        theta_pos = math.fmod(theta + (2 * math.pi), 2 * math.pi)
-        heading_pos = math.fmod(heading + (2 * math.pi), 2 * math.pi)
-        angle = math.fabs(theta_pos - heading_pos)
-
-        if angle > math.pi:
-            angle = (2 * math.pi) - angle;
-
-        if angle > math.pi / 2:
+        # if passed closest waypoint, choose the next waypoint
+        if transformed.point.x < 0:
+            num_waypoints = len(waypoints)
             closest_idx = (closest_idx + 1) % num_waypoints
 
         return closest_idx
-
 
 if __name__ == '__main__':
     try:
