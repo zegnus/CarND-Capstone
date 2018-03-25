@@ -40,10 +40,12 @@ class WaypointUpdater(object):
         self.listener = tf.TransformListener()
 
         # TODO: Add other member variables you need below
-        self.traffic_waypoint = -1
-        self.obstacle_waypoint = -1
+        self.traffic_waypoint = None
+        self.obstacle_waypoint = None
         self.current_pose = None
         self.base_waypoints = None
+
+        self.max_velocity = rospy.get_param("/waypoint_loader/velocity")
 
         self.loop()
 
@@ -65,6 +67,21 @@ class WaypointUpdater(object):
         # shift waypoint indexes to start on next_waypoint so it's easy to grab LOOKAHEAD_WPS
         waypoints = waypoints[next_waypoint:] + waypoints[:next_waypoint]
         waypoints = waypoints[:LOOKAHEAD_WPS]
+
+        """
+        TODO: This is a very simple update to waypoint velocity, but it needs a lot of work...
+        1) Use JMT to calculate trajectories (Only calculate velocity since we already know waypoints?)
+        2) Use cost functions to select the best trajectory
+            - cost for velocity below max velocity
+            - cost for violating contraints
+        3) Use cost functions to determine best trajectory for stopping/starting
+        """
+        if self.traffic_waypoint and self.traffic_waypoint.data != -1:
+            for idx, waypoint in enumerate(waypoints):
+                self.set_waypoint_velocity(waypoints, idx, 0)
+        else:
+            for idx, waypoint in enumerate(waypoints):
+                self.set_waypoint_velocity(waypoints, idx, self.max_velocity)
 
         lane = Lane()
         lane.waypoints = waypoints
@@ -153,14 +170,16 @@ class WaypointUpdater(object):
 
         # check if passed closest waypoint (let ROS do the math)
         closest = waypoints[closest_idx]
-        p_world = PointStamped(header=pose.header, point=closest.pose.pose.position)
-        self.listener.waitForTransform('/base_link', '/world', pose.header.stamp, rospy.Duration(3.0))
-        transformed = self.listener.transformPoint('/base_link', p_world)
 
-        # if passed closest waypoint, choose the next waypoint
-        if transformed.point.x < 0:
-            num_waypoints = len(waypoints)
-            closest_idx = (closest_idx + 1) % num_waypoints
+        try:
+            p_world = PointStamped(header=pose.header, point=closest.pose.pose.position)
+            transformed = self.listener.transformPoint('/base_link', p_world)
+            # if passed closest waypoint, choose the next waypoint
+            if transformed.point.x < 0:
+                num_waypoints = len(waypoints)
+                closest_idx = (closest_idx + 1) % num_waypoints
+        except Exception as e:
+            pass
 
         return closest_idx
 
