@@ -24,8 +24,6 @@ as well as to verify your TL classifier.
 TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
-LOOKAHEAD_WPS = 200 # Number of waypoints we will publish. You can change this number
-
 class WaypointUpdater(object):
     def __init__(self):
         rospy.init_node('waypoint_updater')
@@ -45,13 +43,14 @@ class WaypointUpdater(object):
         self.current_pose = None
         self.base_waypoints = None
 
-        self.max_velocity = rospy.get_param("/waypoint_loader/velocity")
+        self.max_decel = rospy.get_param("~max_decel")
+        self.lookahead_wps = rospy.get_param("~lookahead_wps") # Number of waypoints we will publish. You can change this number
 
         self.loop()
 
     def loop(self):
         # TODO: adjust rate
-        rate = rospy.Rate(0.5)
+        rate = rospy.Rate(5)
         while not rospy.is_shutdown():
             if self.current_pose is None or self.base_waypoints is None:
                 continue
@@ -63,29 +62,44 @@ class WaypointUpdater(object):
         """publish Lane message to /final_waypoints topic"""
 
         next_waypoint = self.next_waypoint(self.base_waypoints.waypoints, self.current_pose)
-        waypoints = self.base_waypoints.waypoints
-        # shift waypoint indexes to start on next_waypoint so it's easy to grab LOOKAHEAD_WPS
-        waypoints = waypoints[next_waypoint:] + waypoints[:next_waypoint]
-        waypoints = waypoints[:LOOKAHEAD_WPS]
+        waypoints = self.base_waypoints.waypoints[next_waypoint:next_waypoint+self.lookahead_wps]
 
-        """
-        TODO: This is a very simple update to waypoint velocity, but it needs a lot of work...
-        1) Use JMT to calculate trajectories (Only calculate velocity since we already know waypoints?)
-        2) Use cost functions to select the best trajectory
-            - cost for velocity below max velocity
-            - cost for violating contraints
-        3) Use cost functions to determine best trajectory for stopping/starting
-        """
         if self.traffic_waypoint and self.traffic_waypoint.data != -1:
-            for idx, waypoint in enumerate(waypoints):
-                self.set_waypoint_velocity(waypoints, idx, 0)
-        else:
-            for idx, waypoint in enumerate(waypoints):
-                self.set_waypoint_velocity(waypoints, idx, self.max_velocity)
+            waypoints = self.decelerate_waypoints(waypoints, next_waypoint)
 
         lane = Lane()
         lane.waypoints = waypoints
         self.final_waypoints_pub.publish(lane)
+
+    def decelerate_waypoints(self, waypoints, closest_idx):
+        """decelerate waypoints to allow car time to slow down
+
+        Args:
+            waypoints (Waypoint[])
+            closest_idx (Int)
+
+        Returns:
+            waypoints (Waypoints[]): waypoints with decelerated velocities
+        """
+
+        temp = []
+
+        for i, wp in enumerate(waypoints):
+
+            p = Waypoint()
+            p.pose = wp.pose
+
+            stop_wp_idx = self.traffic_waypoint.data
+            stop_idx = max(stop_wp_idx - closest_idx - 2, 0) # Two waypoints from line so front of car stops at line
+            dist = self.distance(waypoints, i, stop_idx)
+            vel = math.sqrt(2 * self.max_decel * dist)
+            if vel < 1.:
+                vel = 0.
+
+            p.twist.twist.linear.x = min(vel, wp.twist.twist.linear.x)
+            temp.append(p)
+
+        return temp
 
     def pose_cb(self, msg):
         self.current_pose = msg
