@@ -27,20 +27,6 @@ class TLDetector(object):
         self.lights = []
         self.processing = False # if currently processing image
 
-        rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
-        rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
-
-        '''
-        /vehicle/traffic_lights provides you with the location of the traffic light in 3D map space and
-        helps you acquire an accurate ground truth data source for the traffic light
-        classifier by sending the current color state of all traffic lights in the
-        simulator. When testing on the vehicle, the color state will not be available. You'll need to
-        rely on the position of the light and the camera image to predict it.
-        '''
-        rospy.Subscriber('/vehicle/traffic_lights', TrafficLightArray, self.traffic_cb)
-        rospy.Subscriber('/image_color', Image, self.image_cb)
-        rospy.Subscriber('/camera_info', CameraInfo, self.camera_info_cb)
-
         config_string = rospy.get_param("/traffic_light_config")
         self.config = yaml.load(config_string)
         self.max_visible_distance = rospy.get_param('~max_visible_distance')
@@ -56,6 +42,20 @@ class TLDetector(object):
         self.last_state = TrafficLight.UNKNOWN
         self.last_wp = -1
         self.state_count = 0
+
+        rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
+        rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
+
+        '''
+        /vehicle/traffic_lights provides you with the location of the traffic light in 3D map space and
+        helps you acquire an accurate ground truth data source for the traffic light
+        classifier by sending the current color state of all traffic lights in the
+        simulator. When testing on the vehicle, the color state will not be available. You'll need to
+        rely on the position of the light and the camera image to predict it.
+        '''
+        rospy.Subscriber('/vehicle/traffic_lights', TrafficLightArray, self.traffic_cb)
+        rospy.Subscriber('/image_color', Image, self.image_cb)
+        rospy.Subscriber('/camera_info', CameraInfo, self.camera_info_cb)
 
         rospy.spin()
 
@@ -135,13 +135,6 @@ class TLDetector(object):
 
         """
 
-        """
-        TODO: !!! remove this return statement !!!
-        this only works on the simulator because we are given ground truth data for light state
-        replace when classifier is complete
-        """
-        return light.state
-
         if(not self.has_image):
             self.prev_light_loc = None
             return False
@@ -149,7 +142,17 @@ class TLDetector(object):
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
 
         #Get classification
-        return self.light_classifier.get_classification(cv_image)
+        state = self.light_classifier.get_classification(cv_image)
+
+        """
+        TODO: !!! remove this return statement !!!
+        this only works on the simulator because we are given ground truth data for light state
+        replace when classifier is complete
+        """
+        if state == TrafficLight.UNKNOWN:
+            return light.state
+
+        return state
 
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
