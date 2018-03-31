@@ -25,6 +25,7 @@ class TLDetector(object):
         self.camera_image = None
         self.state = None
         self.lights = []
+        self.processing = False # if currently processing image
 
         rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
         rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
@@ -78,6 +79,12 @@ class TLDetector(object):
             msg (Image): image from car-mounted camera
 
         """
+
+        if self.processing:
+            return
+
+        self.processing = True
+
         self.has_image = True
         self.camera_image = msg
         light_wp, state = self.process_traffic_lights()
@@ -99,6 +106,8 @@ class TLDetector(object):
         else:
             self.upcoming_red_light_pub.publish(Int32(self.last_wp))
         self.state_count += 1
+
+        self.processing = False
 
     def get_closest_waypoint(self, pose, waypoints):
         """Identifies the closest path waypoint to the given position
