@@ -5,7 +5,6 @@ import os
 
 class TLClassifier(object):
     def __init__(self):
-        pass
         # start tensorflow session
         model_dir = './models'
         model_filename = rospy.get_param('~model')
