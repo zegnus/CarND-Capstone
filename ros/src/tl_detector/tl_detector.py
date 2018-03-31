@@ -142,17 +142,7 @@ class TLDetector(object):
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "rgb8")
 
         #Get classification
-        state = self.light_classifier.get_classification(cv_image)
-
-        """
-        TODO: !!! remove this return statement !!!
-        this only works on the simulator because we are given ground truth data for light state
-        replace when classifier is complete
-        """
-        if state == TrafficLight.UNKNOWN:
-            return light.state
-
-        return state
+        return self.light_classifier.get_classification(cv_image)
 
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
