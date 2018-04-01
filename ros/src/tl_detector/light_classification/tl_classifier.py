@@ -56,10 +56,10 @@ class TLClassifier(object):
         # Off=4, GREEN=1, YELLOW=3, RED=2 -- Classifier
         # UNKNOWN=4, GREEN=2, YELLOW=1, RED=0 -- Styx
         classifierToStyxLabelMap = {
-            1: 2, # GREEN
-            2: 0, # RED
-            3: 1, # YELLOW
-            4: 4, # UNKNOWN
+            1: TrafficLight.GREEN,
+            2: TrafficLight.RED,
+            3: TrafficLight.YELLOW,
+            4: TrafficLight.UNKNOWN
         }
         classfierLabel = detection_classes[0][0]
         return classifierToStyxLabelMap.get(classfierLabel)
