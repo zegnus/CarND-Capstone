@@ -46,7 +46,6 @@ class TLClassifier(object):
             {image_tensor: [image]}
         )
 
-        # TODO
-        # heatmap?
-
-        return TrafficLight.UNKNOWN
+        # Assumption: class label matches light code from styx_msgs/msg/TrafficLight.msg
+        # UNKNOWN=4, GREEN=2, YELLOW=1, RED=0
+        return detection_classes[0][0]
