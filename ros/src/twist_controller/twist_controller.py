@@ -12,14 +12,15 @@ class Controller(object):
     def __init__(self, vehicle_mass, fuel_capacity, brake_deadband, decel_limit,
         accel_limit, wheel_radius, wheel_base, steer_ratio, max_lat_accel, max_steer_angle):
         
-        self.yaw_controller = YawController(wheel_base, steer_ratio, min_speed = 0.1, max_lat_accel, max_steer_angle)
+        min_speed = 0.1
+        self.yaw_controller = YawController(wheel_base, steer_ratio, min_speed, max_lat_accel, max_steer_angle)
 
         self.throttle_controller = PID(
-            kd = 0.3,
+            kp = 0.3,
             ki = 0.1,
-            kd = 0.
-            mn = 0. # Minimum throttle value
-            mx = 0.2 # Maximum throttle value
+            kd = 0.,
+            mn = 0., # Minimum throttle value
+            mx = 0.8 # Maximum throttle value
         )
 
         self.vel_low_pass_filter = LowPassFilter(
@@ -43,11 +44,11 @@ class Controller(object):
 
         current_vel = self.vel_low_pass_filter.filt(current_vel)
 
-        rospy.logwarn("Angular vel: {0}".format(angular_vel))
-        rospy.logwarn("Target vel: {0}".format(linear_vel))
-        rospy.logwarn("Target angular velocity: {0}\n".format(angular_vel))
-        rospy.logwarn("Current vel: {0}".format(current_vel))
-        rospy.logwarn("Filtered vel: {0}".format(self.vel_low_pass_filter.get())))
+        # rospy.logwarn("Angular vel: {0}".format(angular_vel))
+        # rospy.logwarn("Target vel: {0}".format(linear_vel))
+        # rospy.logwarn("Target angular velocity: {0}\n".format(angular_vel))
+        # rospy.logwarn("Current vel: {0}".format(current_vel))
+        # rospy.logwarn("Filtered vel: {0}".format(self.vel_low_pass_filter.get()))
 
         steering = self.yaw_controller.get_steering(linear_vel, angular_vel, current_vel)
 
