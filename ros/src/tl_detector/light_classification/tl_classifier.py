@@ -5,6 +5,9 @@ import os
 
 class TLClassifier(object):
     def __init__(self):
+
+        self.threshold = rospy.get_param('~classifier_threshold')
+
         # start tensorflow session
         model_dir = './models'
         model_filename = rospy.get_param('~model')
@@ -46,6 +49,17 @@ class TLClassifier(object):
             {image_tensor: [image]}
         )
 
-        # Assumption: class label matches light code from styx_msgs/msg/TrafficLight.msg
-        # UNKNOWN=4, GREEN=2, YELLOW=1, RED=0
-        return detection_classes[0][0]
+        highest_score = detection_scores[0][0]
+        if highest_score < self.threshold:
+            return TrafficLight.UNKNOWN
+
+        # Off=4, GREEN=1, YELLOW=3, RED=2 -- Classifier
+        # UNKNOWN=4, GREEN=2, YELLOW=1, RED=0 -- Styx
+        classifierToStyxLabelMap = {
+            1: TrafficLight.GREEN,
+            2: TrafficLight.RED,
+            3: TrafficLight.YELLOW,
+            4: TrafficLight.UNKNOWN
+        }
+        classfierLabel = detection_classes[0][0]
+        return classifierToStyxLabelMap.get(classfierLabel)
