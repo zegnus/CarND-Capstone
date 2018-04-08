@@ -3,7 +3,9 @@ import tensorflow as tf
 import rospy
 import os
 
+
 class TLClassifier(object):
+
     def __init__(self):
 
         self.threshold = rospy.get_param('~classifier_threshold')
@@ -36,16 +38,22 @@ class TLClassifier(object):
 
         # Definite input and output Tensors for detection_graph
         image_tensor = self.graph.get_tensor_by_name('image_tensor:0')
-        # Each box represents a part of the image where a particular object was detected.
-        detection_boxes_tensor = self.graph.get_tensor_by_name('detection_boxes:0')
+        # Each box represents a part of the image where a particular object was
+        # detected.
+        detection_boxes_tensor = self.graph.get_tensor_by_name(
+            'detection_boxes:0')
         # Each score represent how level of confidence for each of the objects.
         # Score is shown on the result image, together with the class label.
-        detection_scores_tensor = self.graph.get_tensor_by_name('detection_scores:0')
-        detection_classes_tensor = self.graph.get_tensor_by_name('detection_classes:0')
-        num_detections_tensor = self.graph.get_tensor_by_name('num_detections:0')
+        detection_scores_tensor = self.graph.get_tensor_by_name(
+            'detection_scores:0')
+        detection_classes_tensor = self.graph.get_tensor_by_name(
+            'detection_classes:0')
+        num_detections_tensor = self.graph.get_tensor_by_name(
+            'num_detections:0')
 
-        detection_boxes, detection_scores, detection_classes, num_detections = self.session.run(
-            [detection_boxes_tensor, detection_scores_tensor, detection_classes_tensor, num_detections_tensor],
+        _, detection_scores, detection_classes, _ = self.session.run(
+            [detection_boxes_tensor, detection_scores_tensor,
+             detection_classes_tensor, num_detections_tensor],
             {image_tensor: [image]}
         )
 

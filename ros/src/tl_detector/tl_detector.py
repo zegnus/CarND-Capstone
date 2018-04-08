@@ -8,15 +8,15 @@ from cv_bridge import CvBridge
 from light_classification.tl_classifier import TLClassifier
 from image_geometry import PinholeCameraModel
 import tf
-import cv2
 import yaml
-import math
 
 from waypoint_updater.srv import *
 
 STATE_COUNT_THRESHOLD = 3
 
+
 class TLDetector(object):
+
     def __init__(self):
         rospy.init_node('tl_detector')
 
@@ -25,15 +25,18 @@ class TLDetector(object):
         self.camera_image = None
         self.state = None
         self.lights = []
-        self.processing = False # if currently processing image
+        self.processing = False  # if currently processing image
 
         config_string = rospy.get_param("/traffic_light_config")
         self.config = yaml.load(config_string)
         self.max_visible_distance = rospy.get_param('~max_visible_distance')
-        self.pinhole_camera_visible_check = rospy.get_param('~pinhole_camera_visible_check')
+        self.pinhole_camera_visible_check = rospy.get_param(
+            '~pinhole_camera_visible_check')
 
-        self.upcoming_red_light_pub = rospy.Publisher('/traffic_waypoint', Int32, queue_size=1)
-        self.next_waypoint_proxy = rospy.ServiceProxy('/waypoint_updater/next_waypoint', NextWaypoint)
+        self.upcoming_red_light_pub = rospy.Publisher(
+            '/traffic_waypoint', Int32, queue_size=1)
+        self.next_waypoint_proxy = rospy.ServiceProxy(
+            '/waypoint_updater/next_waypoint', NextWaypoint)
 
         self.bridge = CvBridge()
         self.light_classifier = TLClassifier()
@@ -54,7 +57,8 @@ class TLDetector(object):
         simulator. When testing on the vehicle, the color state will not be available. You'll need to
         rely on the position of the light and the camera image to predict it.
         '''
-        rospy.Subscriber('/vehicle/traffic_lights', TrafficLightArray, self.traffic_cb)
+        rospy.Subscriber('/vehicle/traffic_lights',
+                         TrafficLightArray, self.traffic_cb)
         rospy.Subscriber('/image_color', Image, self.image_cb)
         rospy.Subscriber('/camera_info', CameraInfo, self.camera_info_cb)
 
@@ -101,7 +105,8 @@ class TLDetector(object):
             self.state = state
         elif self.state_count >= STATE_COUNT_THRESHOLD:
             self.last_state = self.state
-            light_wp = light_wp if state in [TrafficLight.YELLOW, TrafficLight.RED] else -1
+            light_wp = light_wp if state in [
+                TrafficLight.YELLOW, TrafficLight.RED] else -1
             self.last_wp = light_wp
             self.upcoming_red_light_pub.publish(Int32(light_wp))
         else:
@@ -142,7 +147,7 @@ class TLDetector(object):
 
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "rgb8")
 
-        #Get classification
+        # Get classification
         return self.light_classifier.get_classification(cv_image)
 
     def process_traffic_lights(self):
@@ -156,7 +161,8 @@ class TLDetector(object):
         """
         light = None
 
-        # List of positions that correspond to the line to stop in front of for a given intersection
+        # List of positions that correspond to the line to stop in front of for
+        # a given intersection
         stop_line_positions = self.config['stop_line_positions']
 
         if (self.pose and self.waypoints and self.lights and self.camera_info):
@@ -173,7 +179,8 @@ class TLDetector(object):
                 x, y = stop_line_positions[closest_idx]
                 pose_stop = Pose(position=Point(x=x, y=y))
                 stamped = PoseStamped(pose=pose_stop, header=self.pose.header)
-                light_wp = self.get_closest_waypoint(stamped, self.waypoints.waypoints)
+                light_wp = self.get_closest_waypoint(
+                    stamped, self.waypoints.waypoints)
 
         if light:
             state = self.get_light_state(light)
@@ -195,7 +202,8 @@ class TLDetector(object):
             point (PointStamped): transformed point
         """
         p_world = PointStamped(header=header, point=point)
-        self.listener.waitForTransform('/base_link', '/world', header.stamp, rospy.Duration(3.0))
+        self.listener.waitForTransform(
+            '/base_link', '/world', header.stamp, rospy.Duration(3.0))
         return self.listener.transformPoint('/base_link', p_world)
 
     def is_visible(self, pose, point):
@@ -214,9 +222,9 @@ class TLDetector(object):
         transformed = self.transform_point(pose.header, point)
 
         # pinhole camera model reverses x, y coordinates
-        x = -transformed.point.y # point.y = horizontal camera dimension
-        y = -transformed.point.z # point.z = vertical camera dimension
-        z = transformed.point.x # point.x = z/depth camera dimension
+        x = -transformed.point.y  # point.y = horizontal camera dimension
+        y = -transformed.point.z  # point.z = vertical camera dimension
+        z = transformed.point.x  # point.x = z/depth camera dimension
 
         # todo: does this need to be more elegant?
         if z > self.max_visible_distance:
@@ -244,6 +252,7 @@ class TLDetector(object):
 
         # light is visible if projected within the bounding box of the 2d image
         return left <= u and u <= right and bottom <= v and v <= top
+
 
 if __name__ == '__main__':
     try:
