@@ -42,6 +42,7 @@ class Controller(object):
 
         self.last_time = rospy.get_time()
 
+
     def control(self, current_vel, dbw_enabled, target_vel, angular_vel, fuel_level):
         if not dbw_enabled:
             self.throttle_controller.reset()
@@ -68,15 +69,19 @@ class Controller(object):
         throttle = self.throttle_controller.step(velocity_error, time_elapsed)
         brake = 0
 
-        current_vehicle_mass = self.vehicle_mass + current_fuel_level / 100 * self.fuel_capacity * GAS_DENSITY;
-
-        if target_vel == 0. and current_vel < 0.1:
+        if self.__keep_car_stopped(target_vel, current_vel):
             throttle = 0
             brake = 400 # N*m to hold the car in place if we are stopped at a light. Acceleration - 1m/s^2
-        elif throttle < .1 and velocity_error < 0:
+        elif self.__car_should_decelerate(throttle, velocity_error):
             throttle = 0
             deceleration = max(velocity_error, self.decel_limit)
+            current_vehicle_mass = self.vehicle_mass + current_fuel_level / 100 * self.fuel_capacity * GAS_DENSITY;
             brake = abs(deceleration) * current_vehicle_mass * self.wheel_radius # Torque N*m
 
         return throttle, brake, steering
 
+    def __keep_car_stopped(self, target_vel, current_vel):
+        return target_vel == 0. and current_vel < 0.1
+
+    def __car_should_decelerate(self, throttle, velocity_error):
+        return throttle < .1 and velocity_error < 0
