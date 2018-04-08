@@ -28,6 +28,11 @@ class Controller(object):
             ts = .02 # Sample time
         )
 
+        self.fuel_low_pass_filter = LowPassFilter(
+            tau = 63, # General value for MKZ, MKZ gas container is 63
+            ts = .02 # Sample time
+        )
+
         self.vehicle_mass = vehicle_mass
         self.fuel_capacity = fuel_capacity
         self.brake_deadband = brake_deadband
@@ -43,6 +48,7 @@ class Controller(object):
             return 0., 0., 0.
 
         current_vel = self.vel_low_pass_filter.filt(current_vel)
+        current_fuel_level = self.fuel_low_pass_filter.filt(fuel_level)
 
         # rospy.logwarn("Angular vel: {0}".format(angular_vel))
         # rospy.logwarn("Target vel: {0}".format(linear_vel))
@@ -62,7 +68,7 @@ class Controller(object):
         throttle = self.throttle_controller.step(velocity_error, time_elapsed)
         brake = 0
 
-        current_vehicle_mass = self.vehicle_mass + fuel_level / 100 * self.fuel_capacity * GAS_DENSITY;
+        current_vehicle_mass = self.vehicle_mass + current_fuel_level / 100 * self.fuel_capacity * GAS_DENSITY;
 
         if linear_vel == 0. and current_vel < 0.1:
             throttle = 0
