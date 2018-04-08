@@ -12,10 +12,11 @@ import yaml
 
 from waypoint_updater.srv import *
 
-STATE_COUNT_THRESHOLD = 3
-
 
 class TLDetector(object):
+
+    # class attributes
+    State_Count_Threshold = 3
 
     def __init__(self):
         rospy.init_node('tl_detector')
@@ -96,14 +97,14 @@ class TLDetector(object):
 
         '''
         Publish upcoming red lights at camera frequency.
-        Each predicted state has to occur `STATE_COUNT_THRESHOLD` number
+        Each predicted state has to occur `State_Count_Threshold` number
         of times till we start using it. Otherwise the previous stable state is
         used.
         '''
         if self.state != state:
             self.state_count = 0
             self.state = state
-        elif self.state_count >= STATE_COUNT_THRESHOLD:
+        elif self.state_count >= TLDetector.State_Count_Threshold:
             self.last_state = self.state
             light_wp = light_wp if state in [
                 TrafficLight.YELLOW, TrafficLight.RED] else -1
