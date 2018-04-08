@@ -64,7 +64,11 @@ class WaypointUpdater(object):
         next_waypoint = self.next_waypoint(self.base_waypoints.waypoints, self.current_pose)
         waypoints = self.base_waypoints.waypoints[next_waypoint:next_waypoint+self.lookahead_wps]
 
-        if self.traffic_waypoint and self.traffic_waypoint.data != -1:
+        if (
+            self.traffic_waypoint and
+            self.traffic_waypoint.data != -1 and
+            self.traffic_waypoint.data >= next_waypoint
+        ):
             waypoints = self.decelerate_waypoints(waypoints, next_waypoint)
 
         lane = Lane()
