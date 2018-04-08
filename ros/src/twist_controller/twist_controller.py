@@ -49,7 +49,6 @@ class Controller(object):
             return 0., 0., 0.
 
         current_vel = self.vel_low_pass_filter.filt(current_vel)
-        current_fuel_level = self.fuel_low_pass_filter.filt(fuel_level)
 
         # rospy.logwarn("Angular vel: {0}".format(angular_vel))
         # rospy.logwarn("Target vel: {0}".format(target_vel))
@@ -75,6 +74,7 @@ class Controller(object):
         elif self.__car_should_decelerate(throttle, velocity_error):
             throttle = 0
             deceleration = max(velocity_error, self.decel_limit)
+            current_fuel_level = self.fuel_low_pass_filter.filt(fuel_level)
             current_vehicle_mass = self.vehicle_mass + current_fuel_level / 100 * self.fuel_capacity * GAS_DENSITY;
             brake = abs(deceleration) * current_vehicle_mass * self.wheel_radius # Torque N*m
 
