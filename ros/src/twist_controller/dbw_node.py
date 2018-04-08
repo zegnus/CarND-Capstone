@@ -73,7 +73,7 @@ class DBWNode(object):
         self.current_vel = None
         self.curr_ang_vel = None
         self.dbw_enabled = None
-        self.linear_vel = None
+        self.target_vel = None
         self.angular_vel = None
         self.throttle = self.steering = self.brake = 0
         self.fuel_level = rospy.get_param("~fuel_level", 50)
@@ -83,11 +83,11 @@ class DBWNode(object):
     def loop(self):
         rate = rospy.Rate(50) # 50Hz
         while not rospy.is_shutdown():
-            if not None in (self.current_vel, self.linear_vel, self.angular_vel):
+            if not None in (self.current_vel, self.target_vel, self.angular_vel):
                 self.throttle, self.brake, self.steering = self.controller.control(
                     self.current_vel,
                     self.dbw_enabled,
-                    self.linear_vel,
+                    self.target_vel,
                     self.angular_vel,
                     self.fuel_level
                 )
@@ -104,7 +104,7 @@ class DBWNode(object):
         self.fuel_level = msg.fuel_level
 
     def twist_cb(self, msg):
-        self.linear_vel = msg.twist.linear.x
+        self.target_vel = msg.twist.linear.x
         self.angular_vel = msg.twist.angular.z
 
     def velocity_cb(self, msg):

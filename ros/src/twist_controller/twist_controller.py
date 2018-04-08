@@ -42,7 +42,7 @@ class Controller(object):
 
         self.last_time = rospy.get_time()
 
-    def control(self, current_vel, dbw_enabled, linear_vel, angular_vel, fuel_level):
+    def control(self, current_vel, dbw_enabled, target_vel, angular_vel, fuel_level):
         if not dbw_enabled:
             self.throttle_controller.reset()
             return 0., 0., 0.
@@ -51,14 +51,14 @@ class Controller(object):
         current_fuel_level = self.fuel_low_pass_filter.filt(fuel_level)
 
         # rospy.logwarn("Angular vel: {0}".format(angular_vel))
-        # rospy.logwarn("Target vel: {0}".format(linear_vel))
+        # rospy.logwarn("Target vel: {0}".format(target_vel))
         # rospy.logwarn("Target angular velocity: {0}\n".format(angular_vel))
         # rospy.logwarn("Current vel: {0}".format(current_vel))
         # rospy.logwarn("Filtered vel: {0}".format(self.vel_low_pass_filter.get()))
 
-        steering = self.yaw_controller.get_steering(linear_vel, angular_vel, current_vel)
+        steering = self.yaw_controller.get_steering(target_vel, angular_vel, current_vel)
 
-        velocity_error = linear_vel - current_vel
+        velocity_error = target_vel - current_vel
         self.last_velocity = current_vel
 
         current_time = rospy.get_time()
@@ -70,7 +70,7 @@ class Controller(object):
 
         current_vehicle_mass = self.vehicle_mass + current_fuel_level / 100 * self.fuel_capacity * GAS_DENSITY;
 
-        if linear_vel == 0. and current_vel < 0.1:
+        if target_vel == 0. and current_vel < 0.1:
             throttle = 0
             brake = 400 # N*m to hold the car in place if we are stopped at a light. Acceleration - 1m/s^2
         elif throttle < .1 and velocity_error < 0:
