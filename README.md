@@ -4,6 +4,8 @@ This is the project repo for the final project of the Udacity Self-Driving Car N
 
 ![](https://d17h27t6h515a5.cloudfront.net/topher/2017/September/59b6d115_final-project-ros-graph-v2/final-project-ros-graph-v2.png)
 
+## Team
+
 | Name                                           | Email                      | Responsibility                            |
 | ---------------------------------------------- | -------------------------- | ----------------------------------------- |
 | [Asad Zia](https://github.com/asadziach)       | asadzia@gmail.com          | Team Lead                                 |
