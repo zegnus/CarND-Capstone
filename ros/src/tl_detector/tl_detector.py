@@ -176,8 +176,7 @@ class TLDetector(object):
                 light_wp = self.get_closest_waypoint(stamped, self.waypoints.waypoints)
 
         if light:
-            state = light.state
-            # state = self.get_light_state(light)
+            state = self.get_light_state(light)
             return light_wp, state
 
         return -1, TrafficLight.UNKNOWN
@@ -222,7 +221,6 @@ class TLDetector(object):
         if z > self.max_visible_distance:
             return False
 
-        rospy.loginfo('pinhole_camera_visible_check %s', self.pinhole_camera_visible_check)
         if not self.pinhole_camera_visible_check:
             return True
 
