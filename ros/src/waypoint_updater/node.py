@@ -24,7 +24,9 @@ as well as to verify your TL classifier.
 TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
+
 class WaypointUpdater(object):
+
     def __init__(self):
         rospy.init_node('waypoint_updater')
 
@@ -34,7 +36,8 @@ class WaypointUpdater(object):
         rospy.Subscriber('/obstacle_waypoint', Int32, self.obstacle_cb)
         rospy.Service('~next_waypoint', NextWaypoint, self.next_waypoint_cb)
 
-        self.final_waypoints_pub = rospy.Publisher('final_waypoints', Lane, queue_size=1)
+        self.final_waypoints_pub = rospy.Publisher(
+            'final_waypoints', Lane, queue_size=1)
         self.listener = tf.TransformListener()
 
         # TODO: Add other member variables you need below
@@ -44,7 +47,8 @@ class WaypointUpdater(object):
         self.base_waypoints = None
 
         self.max_decel = rospy.get_param("~max_decel")
-        self.lookahead_wps = rospy.get_param("~lookahead_wps") # Number of waypoints we will publish. You can change this number
+        # Number of waypoints we will publish. You can change this number
+        self.lookahead_wps = rospy.get_param("~lookahead_wps")
 
         self.loop()
 
@@ -61,8 +65,10 @@ class WaypointUpdater(object):
     def publish(self):
         """publish Lane message to /final_waypoints topic"""
 
-        next_waypoint = self.next_waypoint(self.base_waypoints.waypoints, self.current_pose)
-        waypoints = self.base_waypoints.waypoints[next_waypoint:next_waypoint+self.lookahead_wps]
+        next_waypoint = self.next_waypoint(
+            self.base_waypoints.waypoints, self.current_pose)
+        waypoints = self.base_waypoints.waypoints[next_waypoint:
+                                                  next_waypoint + self.lookahead_wps]
 
         if (
             self.traffic_waypoint and
@@ -94,7 +100,8 @@ class WaypointUpdater(object):
             p.pose = wp.pose
 
             stop_wp_idx = self.traffic_waypoint.data
-            stop_idx = max(stop_wp_idx - closest_idx - 2, 0) # Two waypoints from line so front of car stops at line
+            # Two waypoints from line so front of car stops at line
+            stop_idx = max(stop_wp_idx - closest_idx - 2, 0)
             dist = self.distance(waypoints, i, stop_idx)
             vel = math.sqrt(2 * self.max_decel * dist)
             if vel < 1.:
@@ -142,13 +149,14 @@ class WaypointUpdater(object):
 
     def distance(self, waypoints, wp1, wp2):
         dist = 0
-        for i in range(wp1, wp2+1):
-            dist += self.distance_p1_p2(waypoints[wp1].pose.pose.position, waypoints[i].pose.pose.position)
+        for i in range(wp1, wp2 + 1):
+            dist += self.distance_p1_p2(
+                waypoints[wp1].pose.pose.position, waypoints[i].pose.pose.position)
             wp1 = i
         return dist
 
     def distance_p1_p2(self, a, b):
-        return math.sqrt((a.x-b.x)**2 + (a.y-b.y)**2  + (a.z-b.z)**2)
+        return math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2 + (a.z - b.z) ** 2)
 
     def closest_waypoint(self, waypoints, pose):
         """ get index of closest waypoint to car
@@ -159,11 +167,12 @@ class WaypointUpdater(object):
             int: the index within base_waypoints
         """
 
-        closest_len = 100000; # large number
-        closest_waypoint = 0;
+        closest_len = 100000  # large number
+        closest_waypoint = 0
 
         for idx, waypoint in enumerate(waypoints):
-            dist = self.distance_p1_p2(pose.pose.position, waypoint.pose.pose.position)
+            dist = self.distance_p1_p2(
+                pose.pose.position, waypoint.pose.pose.position)
             if dist < closest_len:
                 closest_len = dist
                 closest_waypoint = idx
@@ -190,7 +199,8 @@ class WaypointUpdater(object):
         closest = waypoints[closest_idx]
 
         try:
-            p_world = PointStamped(header=pose.header, point=closest.pose.pose.position)
+            p_world = PointStamped(
+                header=pose.header, point=closest.pose.pose.position)
             transformed = self.listener.transformPoint('/base_link', p_world)
             # if passed closest waypoint, choose the next waypoint
             if transformed.point.x < 0:
@@ -200,6 +210,7 @@ class WaypointUpdater(object):
             pass
 
         return closest_idx
+
 
 if __name__ == '__main__':
     try:
